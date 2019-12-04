@@ -1,12 +1,16 @@
 import React from 'react';
+import { get_from_server } from '../../functions/functions.js';
+
+const messageRef = React.createRef();
 
 class Register extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      email: '',
+      name:     '',
+      email:    '',
       password: '',
-      name: '',
+      message: ''
     }
   }
 
@@ -22,32 +26,40 @@ class Register extends React.Component {
     this.setState({password: event.target.value})
   }
 
-	onSubmitRegister = () => {
-    fetch('https://murmuring-woodland-01911.herokuapp.com/register', {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password,
-        name: this.state.name
-      })
-    })
-    .then(response => response.json())
-    .then(user => {
-      if (user.id) 
-      {
-        this.props.loadUser(user);
-        this.props.onRouteChange('Home');
-      }
+	onSubmitRegister = async event => {
+    event.preventDefault();
 
-    })
-    .catch(console.log);
+    try 
+    {
+        const user = await get_from_server('/register', {
+          method: 'post',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            email:    this.state.email,
+            password: this.state.password,
+            name:     this.state.name
+          })
+        })
+        
+        if (user.id) 
+        {
+          this.props.loadUser(user);
+          this.props.changeToRoute('Home');
+        }
+    }
+    catch (error) {
+        this.setState({ message: error}, () => {
+            messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
+        });
+        setTimeout(() => {this.setState({ message: '' })}, 4000);
+    }
   }
 
   render() {
+    const {changeToRoute} = this.props;
     return (
-      <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
-          <main className="pa4 black-80">
+      <article className="br3 ba b--black-10 mv4 shadow-5 center" style={{maxWidth: '20rem'}}>
+          <form className="pa4 black-80" style={{position: 'relative'}}>
               <div className="measure">
                 <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
                   <legend className="f1 fw6 ph0 mh0">Register</legend>
@@ -58,6 +70,7 @@ class Register extends React.Component {
                       type="text"
                       name="name"
                       id="name" 
+                      autoComplete='name'
                       onChange={this.onNameChange}
                     />
                   </div>
@@ -68,6 +81,7 @@ class Register extends React.Component {
                       type="email"
                       name="email"  
                       id="email" 
+                      autoComplete='email'
                       onChange={this.onEmailChange}
                     />
                   </div>
@@ -78,6 +92,7 @@ class Register extends React.Component {
                       type="password"
                       name="password" 
                       id="password"
+                      autoComplete='new-password'
                       onChange={this.onPasswordChange}
                     />
                   </div>
@@ -90,8 +105,16 @@ class Register extends React.Component {
                     value="Register"
                   />
                 </div>
+                <div className="lh-copy mt3">
+                  <p
+                    onClick={() => changeToRoute('SignIn')}
+                    className="f6 link dim black db pointer">...or Sign In</p>
+                </div>
+                <p
+                  style={{fontSize: '.875rem', color: '#ffbb00', position:'absolute', bottom:0, right:0, left:0, marginBottom:0}}
+                  ref={messageRef}>{this.state.message}</p>
               </div>
-          </main>
+          </form>
       </article>
     );
   }

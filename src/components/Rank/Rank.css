@@ -1,0 +1,11 @@
+.ranking {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.ranking p,
+.ranking p span {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+}

@@ -1,0 +1,20 @@
+nav p {
+  font-size: 1.5rem;
+  color: black;
+  text-decoration: underline;
+  padding: 1rem 1rem;
+  margin: 0;
+  cursor: pointer;
+  opacity: 1;
+  align-self: center;
+
+  transition: opacity 0.2s ease-in;
+  /* transition-property: opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in;
+  transition-delay: 0s; */
+}
+
+nav p:hover {
+  opacity: 0.4;
+}

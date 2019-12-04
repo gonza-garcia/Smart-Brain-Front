@@ -1,47 +1,59 @@
 import React from 'react';
+import { get_from_server } from '../../functions/functions.js';
+
+const messageRef = React.createRef();
 
 class SignIn extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      signInEmail: '',
-      signInPassword: ''
+      email: '',
+      password: '',
+      message: ''
     }
   }
 
   onEmailChange = event => {
-    this.setState({signInEmail: event.target.value})
+    this.setState({email: event.target.value})
   }
 
   onPasswordChange = event => {
-    this.setState({signInPassword: event.target.value})
+    this.setState({password: event.target.value})
   }
 
-	onSubmitSignIn = () => {
-    fetch('https://murmuring-woodland-01911.herokuapp.com/signin', {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        email: this.state.signInEmail,
-        password: this.state.signInPassword
-      })
-    })
-    .then(response => response.json())
-    .then(user => {
-      if (user.id) {
-        this.props.loadUser(user);
-        this.props.onRouteChange('Home');
-      }
+  onSubmitSignIn = async event => {
+    event.preventDefault();
 
-    })
-    .catch(console.log)
+    try 
+    {
+        const user = await get_from_server('/signin', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              email: this.state.email,
+              password: this.state.password
+            })
+        });
+        
+        if (user.id) {
+          this.props.loadUser(user);
+          this.props.changeToRoute('Home');
+        }
+    }
+    catch (error) {
+      this.setState({ message: error}, () => {
+          messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
+      });
+      setTimeout(() => {this.setState({ message: '' })}, 4000);
+    }
   }
+
 
   render() {
-    const {onRouteChange} = this.props;
+    const {changeToRoute} = this.props;
     return (
-      <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw5 shadow-5 center">
-          <main className="pa4 black-80">
+      <article className="br3 ba b--black-10 mv4 shadow-5 center" style={{maxWidth: '20rem'}}>
+          <form className="pa4 black-80" style={{position:'relative'}}>
               <div className="measure">
                 <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
                   <legend className="f1 fw6 ph0 mh0">Sign In</legend>
@@ -52,6 +64,7 @@ class SignIn extends React.Component {
                       type="email"
                       name="email-address"
                       id="email-address"
+                      autoComplete='email'
                       onChange={this.onEmailChange}
                       />
                   </div>
@@ -62,24 +75,29 @@ class SignIn extends React.Component {
                       type="password"
                       name="password"
                       id="password"
+                      autoComplete='current-password'
                       onChange={this.onPasswordChange}
                     />
                   </div>
                 </fieldset>
                 <div className="">
                   <input
-                    // onClick={() => onRouteChange('Home')}
                     onClick={this.onSubmitSignIn}
                     className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                     type="submit"
-                    value="Sign in"
+                    value="Sign In"
                   />
                 </div>
                 <div className="lh-copy mt3">
-                  <p onClick={() => onRouteChange('Register')} className="f6 link dim black db pointer">Register</p>
+                  <p
+                    onClick={() => changeToRoute('Register')}
+                    className="f6 link dim black db pointer">...or Register</p>
                 </div>
+                <p
+                  style={{fontSize: '.875rem', color: '#ffbb00', position:'absolute', bottom:0, right:0, left:0, marginBottom:0}}
+                  ref={messageRef}>{this.state.message}</p>
               </div>
-          </main>
+          </form>
       </article>
     );
   }

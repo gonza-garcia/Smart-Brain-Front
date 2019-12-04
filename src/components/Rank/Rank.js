@@ -1,16 +1,12 @@
 import React from 'react';
+import './Rank.css';
 
-const Rank = ({name, entries}) => {
-    return (
-        <div>
-            <div className='white f3'>
-                {`${name}, your current entry count is...`}
+const Rank = ({ user }) => {
+    return  <div className='ranking'>
+                {
+                    <p>Hey, {user.name.replace(/^\w/, c => c.toUpperCase())}! You've made <span className='f1'>{user.entries}</span> detections.</p>
+                }
             </div>
-            <div className='white f1'>
-                {entries}
-            </div>
-        </div>
-    );
 }
 
 export default Rank;

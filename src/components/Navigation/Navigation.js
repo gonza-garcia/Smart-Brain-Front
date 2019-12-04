@@ -1,20 +1,22 @@
-import React from 'react';
+import React, {Fragment} from 'react';
+import './Navigation.css';
 
-const Navigation = ({ onRouteChange, isSignedIn }) => {
-  return (
-      isSignedIn
-        ? (
-          <nav style={{display: 'flex', justifyContent: 'flex-end',}}>
-              <p onClick={() => onRouteChange('SignOut')} className='f3 link dim black underline pa3 pointer'>Sign Out</p>
-          </nav>
-        )
-        : (
-          <nav style={{display: 'flex', justifyContent: 'flex-end',}}>
-              <p onClick={() => onRouteChange('SignIn')} className='f3 link dim black underline pa3 pointer'>Sign In</p>
-              <p onClick={() => onRouteChange('Register')} className='f3 link dim black underline pa3 pointer'>Register</p>
-          </nav>
-        )
-  );
+const Navigation = ({ changeToRoute, isSignedIn, user }) => {
+    return (
+      <nav style={{display: 'flex', justifyContent: 'flex-end'}}>
+          {
+              isSignedIn
+              ? <Fragment>
+                    <p onClick={() => changeToRoute('Profile')}>{user.name.replace(/^\w/, c => c.toUpperCase())}</p>
+                    <p onClick={() => changeToRoute('SignOut')}>Sign Out</p>
+                </Fragment>
+              : <Fragment>
+                    <p onClick={() => changeToRoute('SignIn')}>Sign In</p>
+                    <p onClick={() => changeToRoute('Register')}>Register</p>
+                </Fragment>
+          }
+      </nav>
+    );
 }
 
 export default Navigation;

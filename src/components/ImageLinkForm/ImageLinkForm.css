@@ -1,9 +1,51 @@
-.form{
-  width: 700px;
-  background:
-  linear-gradient(63deg, #999 23%, transparent 23%) 7px 0,
-  linear-gradient(63deg, transparent 74%, #999 78%),
-  linear-gradient(63deg, transparent 34%, #999 38%, #999 58%, transparent 62%),
-  #444;
-  background-size: 16px 48px;
+form.image-link-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  justify-content: center;
+  padding: 1.5rem;
+  font-size: 1.25rem;
+  border-radius: .5rem;
+  box-shadow: 0 0 8px 2px rgba( 0, 0, 0, .2 );
+}
+
+form > textarea.form-textarea {
+  flex: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  border-width: 0 1px 1px 0;
+  color: black;
+  background-color: rgba(0, 0, 0, .7);
+  background-color: rgba(255, 255, 255, .8);
+  text-align: center;
+}
+
+form > textarea.form-textarea:focus {
+  outline: -webkit-focus-ring-color auto 0px;
+  background-color: rgba(0, 0, 0, .9);
+  background-color: rgba(255, 255, 255, .9);
+}
+
+form > input.form-button {
+  width: 50%;
+  height: 3rem;
+  padding: 0.5rem 1rem;
+  /* margin: 0.5rem 0.5rem 0rem 0.5rem; */
+  border-radius: 0.5rem;
+  border-width: 0 1px 1px 0;
+  color: white;
+  background-color: rgba(2, 2, 2, 0.7);
+  transition: transform .15s ease-in-out;
+}
+
+form > input.form-button:hover {
+  transform: scale( 1.05 );
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+@media only screen and (max-width: 350px) {
+  form > input.form-button {
+    width: 100%;
+  }
 }

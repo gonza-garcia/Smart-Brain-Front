@@ -1,23 +1,31 @@
 import React from 'react';
 import './ImageLinkForm.css';
 
-const ImageLinkForm = ({ onInputChange, onButtonSubmit }) => {
+const ImageLinkForm = React.forwardRef(({ onInputChange, onDetect, onClear, message }, ref) => {
+
     return (
-        <div>
-            <p className='f3'>
-                {
-                    'This Magic Brain will detect faces. Give it a try!!'
-                }
-            </p>
-            <div className='center'>
-                <div className='form center pa4 br3 shadow-5'>
-                    <input className='f4 pa2 w-70 center' type='tex' onChange={onInputChange} />
-                    <button className='f4 w-30 grow link ph3 pv2 dib white bg-light-purple'
-                            onClick={onButtonSubmit}>Detect</button>
-                </div>
-            </div>
-        </div>
+            <form className='image-link-form'>
+                <textarea 
+                    className='form-textarea'
+                    placeholder={`Paste an image url here and click on Detect.`}
+                    rows='3'
+                    onChange={onInputChange} 
+                    ref={ref}></textarea>
+                <input
+                    className='form-button'
+                    onClick={onDetect}
+                    value='Detect'
+                    type='submit' 
+                    />
+                <input
+                    className='form-button'
+                    onClick={onClear}
+                    value='Clear'
+                    type='reset'
+                    />
+                <p>{message}</p>
+            </form>
     );
-}
+});
 
 export default ImageLinkForm;
