@@ -10,6 +10,7 @@ import Rank from '../components/Rank/Rank.js';
 import './App.css';
 import { get_from_server, loadImage } from '../functions/functions.js';
 
+
 const particlesOptions = {
   particles: {
     number: {
@@ -25,6 +26,7 @@ const particlesOptions = {
 
 const initialState = {
   imageUrl: '',
+  imageSourceIsLocal: false,
   boxes: [],
   route: 'SignIn',
   isSignedIn: false,
@@ -37,9 +39,23 @@ const initialState = {
     joined:   '',
   }
 }
+// const initialState = {
+//   imageUrl: '',
+//   imageSourceIsLocal: false,
+//   boxes: [],
+//   route: 'Home',
+//   isSignedIn: true,
+//   message: '',
+//   user: {
+//     id:       1,
+//     name:     "gonza",
+//     email:    "gonzalo@gmail.com",
+//     entries:  6,
+//     joined:   "2019-11-29T19:34:51.218Z",
+//   }
+// }
 
-
-const inputRef = React.createRef();
+const formRef = React.createRef();
 const imageRef = React.createRef();
 const messageRef = React.createRef();
 
@@ -84,11 +100,40 @@ class App extends Component {
   }
 
   onInputChange = (event) => {
-    this.setState({ imageUrl: event.target.value, boxes: [] });
+      this.setState({ imageUrl: event.target.value, imageSourceIsLocal: false, boxes: [] });
+  }
+  
+  onImageUpload = (event) => {
+
+      const files = event.target.files[0];
+
+      let fileReader = new FileReader();
+
+      fileReader.onloadend = async () => {
+          this.setState({ imageUrl: fileReader.result, imageSourceIsLocal: true, boxes: [] });
+      }
+
+      if (files) {
+          if (files.type.split('/')[0] !== 'image') {
+              this.showMessage(`The file doesn't look like a valid image.`);
+              return;
+          };
+          if (files.size > 10485760) {
+              this.showMessage(`Sorry. The image is too big. Try one below 10 MB.`);
+              return;
+          };
+
+          formRef.current['textInput'].value = `[Upload mode is on. Click on 'Clear' to go back.] Pic selected: ${files.name}.`;
+          formRef.current['textInput'].setAttribute("disabled", "true");
+
+          fileReader.readAsDataURL(files);
+      }
   }
 
   onDetect = async (event) => {
       event.preventDefault();
+
+      let url = this.state.imageSourceIsLocal ? this.state.imageUrl.replace(/^data:image.+;base64,/, '') : this.state.imageUrl;
 
       try
       {
@@ -97,7 +142,7 @@ class App extends Component {
           const regions = await get_from_server('/image/predict', {
               method: 'post',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ imageUrl: this.state.imageUrl })
+              body: JSON.stringify({ imageUrl: url })
           });
 
           const entries = await get_from_server('/image/afterpredict', {
@@ -118,18 +163,20 @@ class App extends Component {
   }
 
 
-  onClear = (e) => {
-    e.preventDefault();
-    inputRef.current.value = '';
-    inputRef.current.focus();
-    this.setState({ imageUrl: '', boxes: [], message: '' });
+  onClear = () => {
+      formRef.current.reset();
+      formRef.current['textInput'].removeAttribute("disabled");
+      this.setState({ imageUrl: '', imageSourceIsLocal: true, boxes: [], message: '' });
   }
 
   showMessage = (message) => {
-    this.setState({ message: message }, () => {
-        messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
-    });
-    setTimeout(() => {this.setState({ message: '' })}, 4000);
+      if (typeof message !== 'string') message = 'Unknown error. Try uploading a smaller image.';
+      
+      this.setState({ message: message }, () => {
+          messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
+      });
+
+      setTimeout(() => {this.setState({ message: '' })}, 4000);
   }
 
   changeToRoute = (route) => {
@@ -169,9 +216,10 @@ class App extends Component {
                     <Rank user={user}/>
                     <ImageLinkForm
                       onInputChange={this.onInputChange}
+                      onImageUpload={this.onImageUpload}
                       onDetect={this.onDetect}
                       onClear={this.onClear}
-                      ref={inputRef}
+                      ref={formRef}
                     />
                     <p
                       style={{fontSize: '1.5rem', color: '#ffbb00', fontWeight:'300'}}

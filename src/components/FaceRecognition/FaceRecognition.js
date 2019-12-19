@@ -1,10 +1,7 @@
 import React from 'react';
 import './FaceRecognition.css';
-import brainLogo from '../Logo/brain.png';
 
 const FaceRecognition = React.forwardRef(({ imageUrl, boxes }, ref) => {
-  let img = new Image();
-
   return (
       <div className='image-div'>
           <img 

@@ -1,0 +1,30 @@
+input.fileInput {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+label.fileInputLabel {
+  /* Style as you please, it will become the visible UI component. */
+  cursor: pointer;
+  height: 3rem;
+  padding: .75rem 1rem 0.5rem 1rem;
+  margin-top: 1%;
+  border-radius: 0.5rem;
+  border-width: 0 1px 1px 0;
+  color: white;
+  background-color: rgba(2, 2, 2, 0.7);
+  transition: transform .15s ease-in-out;
+}
+
+label.fileInputLabel:hover {
+  transform: scale( 1.05 );
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+
+@media only screen and (max-width: 350px) {
+  label.fileInputLabel {
+    width: 100%;
+  }
+}

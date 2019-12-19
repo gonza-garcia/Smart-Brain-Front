@@ -1,7 +1,6 @@
 form.image-link-form {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   justify-content: center;
   padding: 1.5rem;
   font-size: 1.25rem;
@@ -12,7 +11,7 @@ form.image-link-form {
 form > textarea.form-textarea {
   flex: 100%;
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
   border-radius: 0.5rem;
   border-width: 0 1px 1px 0;
   color: black;
@@ -25,27 +24,4 @@ form > textarea.form-textarea:focus {
   outline: -webkit-focus-ring-color auto 0px;
   background-color: rgba(0, 0, 0, .9);
   background-color: rgba(255, 255, 255, .9);
-}
-
-form > input.form-button {
-  width: 50%;
-  height: 3rem;
-  padding: 0.5rem 1rem;
-  /* margin: 0.5rem 0.5rem 0rem 0.5rem; */
-  border-radius: 0.5rem;
-  border-width: 0 1px 1px 0;
-  color: white;
-  background-color: rgba(2, 2, 2, 0.7);
-  transition: transform .15s ease-in-out;
-}
-
-form > input.form-button:hover {
-  transform: scale( 1.05 );
-  background-color: rgba(0, 0, 0, 0.9);
-}
-
-@media only screen and (max-width: 350px) {
-  form > input.form-button {
-    width: 100%;
-  }
 }

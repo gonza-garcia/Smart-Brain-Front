@@ -1,29 +1,30 @@
 import React from 'react';
 import './ImageLinkForm.css';
+import Button from '../Button/Button.js';
+import FileInput from '../FileInput/FileInput.js';
 
-const ImageLinkForm = React.forwardRef(({ onInputChange, onDetect, onClear, message }, ref) => {
-
+const ImageLinkForm = React.forwardRef(({ onInputChange, onImageUpload, onDetect, onClear }, ref) => {
     return (
-            <form className='image-link-form'>
+            <form
+                className='image-link-form'
+                ref={ref}
+                >
                 <textarea 
+                    name='textInput'
                     className='form-textarea'
-                    placeholder={`Paste an image url here and click on Detect.`}
+                    placeholder={`Copy your pic's url here or upload your own and click Detect.`}
                     rows='3'
-                    onChange={onInputChange} 
-                    ref={ref}></textarea>
-                <input
-                    className='form-button'
-                    onClick={onDetect}
-                    value='Detect'
-                    type='submit' 
+                    onChange={onInputChange}>
+                </textarea>
+                <FileInput 
+                    text='Upload Pic'
+                    name='fileInput'
+                    id='fileInputLabel'
+                    onChange={onImageUpload}
+                    width='50%'
                     />
-                <input
-                    className='form-button'
-                    onClick={onClear}
-                    value='Clear'
-                    type='reset'
-                    />
-                <p>{message}</p>
+                <Button text='Clear' onClick={onClear} width='50%'/>
+                <Button text='Detect' onClick={onDetect} width='100%'/>
             </form>
     );
 });
