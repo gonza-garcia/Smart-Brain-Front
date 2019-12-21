@@ -25,34 +25,36 @@ const particlesOptions = {
 
 
 const initialState = {
-  imageUrl: '',
-  imageSourceIsLocal: false,
-  boxes: [],
-  route: 'SignIn',
-  isSignedIn: false,
-  message: '',
-  user: {
-    id:       '',
-    name:     '',
-    email:    '',
-    entries:  0,
-    joined:   '',
-  }
+    imageUrl: '',
+    imageSourceIsLocal: false,
+    boxes: [],
+    route: 'SignIn',
+    isSignedIn: false,
+    message: '',
+    isLoading: false,
+    user: {
+      id:       '',
+      name:     '',
+      email:    '',
+      entries:  0,
+      joined:   '',
+    }
 }
 // const initialState = {
-//   imageUrl: '',
-//   imageSourceIsLocal: false,
-//   boxes: [],
-//   route: 'Home',
-//   isSignedIn: true,
-//   message: '',
-//   user: {
-//     id:       1,
-//     name:     "gonza",
-//     email:    "gonzalo@gmail.com",
-//     entries:  6,
-//     joined:   "2019-11-29T19:34:51.218Z",
-//   }
+//     imageUrl: '',
+//     imageSourceIsLocal: false,
+//     boxes: [],
+//     route: 'Home',
+//     isSignedIn: true,
+//     message: '',
+//     isLoading: false,
+//     user: {
+//       id:       1,
+//       name:     "gonza",
+//       email:    "gonzalo@gmail.com",
+//       entries:  6,
+//       joined:   "2019-11-29T19:34:51.218Z",
+//     }
 // }
 
 const formRef = React.createRef();
@@ -123,7 +125,7 @@ class App extends Component {
               return;
           };
 
-          formRef.current['textInput'].value = `[Upload mode is on. Click on 'Clear' to go back.] Pic selected: ${files.name}.`;
+          formRef.current['textInput'].value = `Upload mode selected:\n${files.name}`;
           formRef.current['textInput'].setAttribute("disabled", "true");
 
           fileReader.readAsDataURL(files);
@@ -131,7 +133,7 @@ class App extends Component {
   }
 
   onDetect = async (event) => {
-      event.preventDefault();
+      this.setState({ isLoading: true });
 
       let url = this.state.imageSourceIsLocal ? this.state.imageUrl.replace(/^data:image.+;base64,/, '') : this.state.imageUrl;
 
@@ -152,6 +154,7 @@ class App extends Component {
           });
 
           this.setState(Object.assign(this.state.user, {entries: entries}));
+          this.setState({ isLoading: false });
 
           this.displayFaceBoxes(this.calculateFacesLocations(regions));
 
@@ -159,6 +162,7 @@ class App extends Component {
       }
       catch (error) {
           this.showMessage(error);
+          this.setState({ isLoading: false });
       }
   }
 
@@ -166,7 +170,7 @@ class App extends Component {
   onClear = () => {
       formRef.current.reset();
       formRef.current['textInput'].removeAttribute("disabled");
-      this.setState({ imageUrl: '', imageSourceIsLocal: true, boxes: [], message: '' });
+      this.setState({ imageUrl: '', imageSourceIsLocal: true, boxes: [], message: '', isLoading: false });
   }
 
   showMessage = (message) => {
@@ -203,7 +207,7 @@ class App extends Component {
 
 
   render() {
-      const {isSignedIn, route, user, message, imageUrl} = this.state;
+      const {isSignedIn, route, user, message, imageUrl, isLoading} = this.state;
 
       return isSignedIn
       ? (
@@ -215,6 +219,7 @@ class App extends Component {
                     <Logo />
                     <Rank user={user}/>
                     <ImageLinkForm
+                      isLoading={isLoading}
                       onInputChange={this.onInputChange}
                       onImageUpload={this.onImageUpload}
                       onDetect={this.onDetect}

@@ -10,7 +10,8 @@ class Register extends React.Component {
       name:     '',
       email:    '',
       password: '',
-      message: ''
+      message: '',
+      isLoading: false
     }
   }
 
@@ -28,6 +29,8 @@ class Register extends React.Component {
 
 	onSubmitRegister = async event => {
     event.preventDefault();
+
+    this.setState({ isLoading: true });
 
     try 
     {
@@ -48,6 +51,7 @@ class Register extends React.Component {
         }
     }
     catch (error) {
+        this.setState({ isLoading: false });
         this.setState({ message: error}, () => {
             messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
         });
@@ -102,7 +106,7 @@ class Register extends React.Component {
                     onClick={this.onSubmitRegister}
                     className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                     type="submit"
-                    value="Register"
+                    value={!this.state.isLoading ? 'Register' : 'Please wait...'}
                   />
                 </div>
                 <div className="lh-copy mt3">

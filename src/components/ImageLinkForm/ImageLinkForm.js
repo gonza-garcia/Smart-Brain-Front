@@ -3,7 +3,9 @@ import './ImageLinkForm.css';
 import Button from '../Button/Button.js';
 import FileInput from '../FileInput/FileInput.js';
 
-const ImageLinkForm = React.forwardRef(({ onInputChange, onImageUpload, onDetect, onClear }, ref) => {
+const ImageLinkForm = React.forwardRef(({ onInputChange, onImageUpload, onDetect, onClear, isLoading }, ref) => {
+    const textForDetect = isLoading ? 'Working... Please Wait' : 'Detect';
+
     return (
             <form
                 className='image-link-form'
@@ -24,7 +26,7 @@ const ImageLinkForm = React.forwardRef(({ onInputChange, onImageUpload, onDetect
                     width='50%'
                     />
                 <Button text='Clear' onClick={onClear} width='50%'/>
-                <Button text='Detect' onClick={onDetect} width='100%'/>
+                <Button text={textForDetect} onClick={onDetect} width='100%'/>
             </form>
     );
 });

@@ -9,7 +9,8 @@ class SignIn extends React.Component {
     this.state = {
       email: '',
       password: '',
-      message: ''
+      message: '',
+      isLoading: false
     }
   }
 
@@ -23,6 +24,8 @@ class SignIn extends React.Component {
 
   onSubmitSignIn = async event => {
     event.preventDefault();
+
+    this.setState({ isLoading: true });
 
     try 
     {
@@ -41,6 +44,7 @@ class SignIn extends React.Component {
         }
     }
     catch (error) {
+      this.setState({ isLoading: false });
       this.setState({ message: error}, () => {
           messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
       });
@@ -85,7 +89,7 @@ class SignIn extends React.Component {
                     onClick={this.onSubmitSignIn}
                     className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                     type="submit"
-                    value="Sign In"
+                    value={!this.state.isLoading ? 'Sign In' : 'Please wait...'}
                   />
                 </div>
                 <div className="lh-copy mt3">
