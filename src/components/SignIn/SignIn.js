@@ -44,11 +44,13 @@ class SignIn extends React.Component {
         }
     }
     catch (error) {
-      this.setState({ isLoading: false });
-      this.setState({ message: error}, () => {
-          messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
-      });
-      setTimeout(() => {this.setState({ message: '' })}, 4000);
+        const message = (typeof error === 'string') ? error : 'Wrong credential. Please try again';
+
+        this.setState({ isLoading: false });
+        this.setState({ message: message}, () => {
+            messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
+        });
+        setTimeout(() => {this.setState({ message: '' })}, 4000);
     }
   }
 

@@ -51,8 +51,10 @@ class Register extends React.Component {
         }
     }
     catch (error) {
+        const message = (typeof error === 'string') ? error : 'Wrong credential. Please try again';
+
         this.setState({ isLoading: false });
-        this.setState({ message: error}, () => {
+        this.setState({ message: message}, () => {
             messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
         });
         setTimeout(() => {this.setState({ message: '' })}, 4000);
