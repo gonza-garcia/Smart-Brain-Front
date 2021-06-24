@@ -1,8 +1,5 @@
 // const host = 'http://localhost:3000';
-const proxy = 'https://shrouded-wave-49496.herokuapp.com/'
-const host = proxy + 'https://murmuring-woodland-01911.herokuapp.com';
-
-console.log(host);
+const host = 'https://murmuring-woodland-01911.herokuapp.com';
 
 export const get_from_server = async (added, object) => {
   const response  = await fetch(host + added, object);
