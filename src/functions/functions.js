@@ -1,5 +1,5 @@
 // const host = 'http://localhost:3000';
-const host = 'https://murmuring-woodland-01911.herokuapp.com';
+const host = 'https://face-smart-backend.herokuapp.com';
 
 export const get_from_server = async (added, object) => {
   const response  = await fetch(host + added, object);
