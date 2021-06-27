@@ -1,24 +1,23 @@
-import React, {Component, Fragment} from 'react';
-import Particles from 'react-particles-js';
-import FaceRecognition from '../components/FaceRecognition/FaceRecognition.js';
-import Navigation from '../components/Navigation/Navigation.js';
-import SignIn from '../components/SignIn/SignIn.js';
-import Register from '../components/Register/Register.js';
-import Logo from '../components/Logo/Logo.js';
-import ImageLinkForm from '../components/ImageLinkForm/ImageLinkForm.js';
-import Rank from '../components/Rank/Rank.js';
+import { useState, useEffect, useRef, Fragment}     from 'react';
+import Particles                                    from 'react-particles-js';
+import FaceRecognition                              from '../components/FaceRecognition/FaceRecognition.js';
+import Navigation                                   from '../components/Navigation/Navigation.js';
+import Logo                                         from '../components/Logo/Logo.js';
+import ImageLinkForm                                from '../components/ImageLinkForm/ImageLinkForm.js';
+import Rank                                         from '../components/Rank/Rank.js';
+import CustomForm                                   from './CustomForm/CustomForm.js';
 import './App.css';
-import { get_from_server, loadImage } from '../functions/functions.js';
+import { fetch_from_server, loadImage }             from '../functions/functions.js';
 
 
 const particlesOptions = {
     particles: {
         number: {
-        value: 80,
-        density: {
-            enable: true,
-            value_area: 800,
-        }
+            value: 80,
+            density: {
+                enable: true,
+                value_area: 800,
+            }
         }
     }
 }
@@ -40,47 +39,75 @@ const initialState = {
         joined:   '',
     }
 }
-// const initialState = {
-//     imageUrl: '',
-//     imageSourceIsLocal: false,
-//     boxes: [],
-//     route: 'Home',
-//     isSignedIn: true,
-//     message: '',
-//     isLoading: false,
-//     user: {
-//       id:       101,
-//       name:     "gonza",
-//       email:    "gonzalo@gonzalo.com",
-//       entries:  6,
-//       joined:   "2019-11-29T19:34:51.218Z",
-//     }
-// }
 
-const formRef = React.createRef();
-const imageRef = React.createRef();
-const messageRef = React.createRef();
+const App = () => {
 
-class App extends Component {
-    constructor() {
-        super();
-        this.state = initialState;
+    const [ imageUrl, setImageUrl ]                     = useState(initialState.imageUrl);
+    const [ imageSourceIsLocal, setImageSourceIsLocal ] = useState(initialState.imageSourceIsLocal);
+    const [ boxes, setBoxes ]                           = useState(initialState.boxes);
+    const [ route, setRoute ]                           = useState(initialState.route);
+    const [ isSignedIn, setIsSignedIn ]                 = useState(initialState.isSignedIn);
+    const [ message, setMessage ]                       = useState(initialState.message);
+    const [ isLoading, setIsLoading ]                   = useState(initialState.isLoading);
+    const [ user, setUser ]                             = useState({ ...initialState.user });
+
+    const formRef       = useRef(null);
+    const imageRef      = useRef(null);
+    const messageRef    = useRef(null);
+
+    useEffect(() => {
+        const timeOut = setTimeout(() => {setMessage('');}, 4000);
+
+        return () => {
+            clearTimeout(timeOut);
+        };
+    }, [message]);
+
+
+    const loadUser = user => {
+        setUser({ ...user });
+
+        setIsSignedIn(true);
     }
 
-    loadUser = user => {
-        this.setState({
-            isSignedIn: true,
-            user: {
-            id:       user.id,
-            name:     user.name,
-            email:    user.email,
-            entries:  user.entries,
-            joined:   user.joined,
-            }
-        }, () => {})
+
+    const onInputChange = event => {
+        setImageUrl(event.target.value);
+        setImageSourceIsLocal(false);
+        setBoxes([]);
+    }
+    
+    const onImageUpload = event => {
+
+        const files = event.target.files[0];
+
+        let fileReader = new FileReader();
+
+        fileReader.onloadend = async () => {
+            setImageUrl(fileReader.result);
+            setImageSourceIsLocal(true);
+            setBoxes([]);
+        }
+
+        if (files) {
+            if (files.type.split('/')[0] !== 'image') {
+                showMessage(`The file doesn't look like a valid image.`);
+                return;
+            };
+            if (files.size > 10485760) {
+                showMessage(`Sorry. The image is too big. Try one below 10 MB.`);
+                return;
+            };
+
+            formRef.current['textInput'].value = `Upload mode selected:\n${files.name}`;
+            formRef.current['textInput'].setAttribute("disabled", "true");
+
+            fileReader.readAsDataURL(files);
+        }
     }
 
-    calculateFacesLocations = (clarifai_regions) => {
+
+    const calculateFacesLocations = ( clarifai_regions ) => {
         const width = Number(imageRef.current.width);
         const height = Number(imageRef.current.height);
 
@@ -97,106 +124,78 @@ class App extends Component {
         return boxes;
     }
 
-    displayFaceBoxes = (boxes) => {
-        this.setState({ boxes: boxes });
-    }
 
-    onInputChange = (event) => {
-        this.setState({ imageUrl: event.target.value, imageSourceIsLocal: false, boxes: [] });
-    }
-    
-    onImageUpload = (event) => {
+    const onDetect = async ( event ) => {
 
-        const files = event.target.files[0];
+        setIsLoading(true);
 
-        let fileReader = new FileReader();
-
-        fileReader.onloadend = async () => {
-            this.setState({ imageUrl: fileReader.result, imageSourceIsLocal: true, boxes: [] });
-        }
-
-        if (files) {
-            if (files.type.split('/')[0] !== 'image') {
-                this.showMessage(`The file doesn't look like a valid image.`);
-                return;
-            };
-            if (files.size > 10485760) {
-                this.showMessage(`Sorry. The image is too big. Try one below 10 MB.`);
-                return;
-            };
-
-            formRef.current['textInput'].value = `Upload mode selected:\n${files.name}`;
-            formRef.current['textInput'].setAttribute("disabled", "true");
-
-            fileReader.readAsDataURL(files);
-        }
-    }
-
-    onDetect = async (event) => {
-        this.setState({ isLoading: true });
-
-        let url = this.state.imageSourceIsLocal ? this.state.imageUrl.replace(/^data:image.+;base64,/, '') : this.state.imageUrl;
+        let url = imageSourceIsLocal ? imageUrl.replace(/^data:image.+;base64,/, '') : imageUrl;
 
         try
         {
-            await loadImage(this.state.imageUrl); //loadImage will throw an error if it's not an image
+            await loadImage(imageUrl); //loadImage will throw an error if it's not an image
 
-            const regions = await get_from_server('/image/predict', {
-                method: 'post',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ imageUrl: url })
-            });
+            const regions = await fetch_from_server('/image/predict', { imageUrl: url }, 'post')
 
-            const entries = await get_from_server('/image/afterpredict', {
-                method: 'put',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: this.state.user.id })
-            });
+            const entries = await fetch_from_server('/image/afterpredict', { id: user.id }, 'put');
 
-            this.setState(Object.assign(this.state.user, {entries: entries}));
-            this.setState({ isLoading: false });
+            setUser({ ...user, entries: entries });
 
-            this.displayFaceBoxes(this.calculateFacesLocations(regions));
+            //now we calculate the boxes locations and display them on screen by setting setBoxes
+            setBoxes(calculateFacesLocations(regions));
 
-            imageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
+            imageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
         }
         catch (error) {
-            this.showMessage(error);
-            this.setState({ isLoading: false });
+            console.log(error);
+            showMessage(error);
         }
+
+        setIsLoading(false);
     }
 
 
-    onClear = () => {
+    const onClear = () => {
         formRef.current.reset();
         formRef.current['textInput'].removeAttribute("disabled");
-        this.setState({ imageUrl: '', imageSourceIsLocal: true, boxes: [], message: '', isLoading: false });
+
+        setImageUrl('');
+        setImageSourceIsLocal(true);
+        setBoxes([]);
+        setMessage('');
+        setIsLoading(false);
     }
 
-    showMessage = (message) => {
-        if (typeof message !== 'string') message = 'Unknown error. Try uploading a smaller image.';
+    const showMessage = msg => {
+        if (typeof msg !== 'string') msg = 'Unknown error. Try uploading a smaller image.';
         
-        this.setState({ message: message }, () => {
-            messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
-        });
+        setMessage(msg);
 
-        setTimeout(() => {this.setState({ message: '' })}, 4000);
+        messageRef.current.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"});
     }
 
 
-    changeToRoute = (route) => {
+    const changeToRoute = route => {
         switch(route) {
             case 'Register':
-                this.setState({ route: route });
+                setRoute(route);
                 break;
             case 'SignIn':
-                this.setState({ route: route });
+                setRoute(route);
                 break;
             case 'SignOut':
-                this.setState(initialState);
+                setImageUrl(initialState.imageUrl);
+                setImageSourceIsLocal(initialState.imageSourceIsLocal);
+                setBoxes(initialState.boxes);
+                setRoute(initialState.route);
+                setIsSignedIn(initialState.isSignedIn);
+                setMessage(initialState.message);
+                setIsLoading(initialState.isLoading);
+                setUser({ ...initialState.user });
                 break;
             case 'Home':
-                this.setState({ isSignedIn: true, route: route});
+                setIsSignedIn(true);
+                setRoute(route);
                 break;
             case 'Profile':
                 console.log('If you are seeing this, have an awesome day.')
@@ -207,33 +206,68 @@ class App extends Component {
     }
 
 
-    render() {
-        const {isSignedIn, route, user, message, imageUrl, isLoading} = this.state;
+    const onFormSubmit = async (formFields, inputs) => {
 
-        return isSignedIn
+        const serverEndpoint = route === 'SignIn' ? '/signin' : '/register'
+
+        setIsLoading(true);
+
+        let user;
+
+        //here I make an object containing one property for each field in formFields, and the value for each property is gonna be the current value of the input with that same name.
+        const payload = formFields.reduce(( accumObject, currentField ) => {
+            accumObject[currentField.name] = inputs[currentField.name];
+            return accumObject;
+        }, {})
+
+        try 
+        {
+            user = await fetch_from_server(serverEndpoint, payload, 'post');
+        }
+        catch (error) {
+            const msg = (typeof error === 'string')
+                            ? error
+                            : 'Wrong credentialS. Please try again';
+
+            showMessage(msg);
+        }
+
+        setIsLoading(false);
+
+        if (user?.id)
+        {
+            setMessage('');
+            loadUser(user);
+            changeToRoute('Home');
+        }
+    }
+
+
+    return isSignedIn
         ? (
             <Fragment>
                 <Particles className='particles' params={particlesOptions} />
-                <Navigation user={user} isSignedIn={isSignedIn} changeToRoute={this.changeToRoute}/>
+                <Navigation user={user} isSignedIn={isSignedIn} changeToRoute={changeToRoute}/>
                 <main className='main-section'>
                     <aside className='sidebar'>
                         <Logo />
                         <Rank user={user}/>
                         <ImageLinkForm
                             isLoading={isLoading}
-                            onInputChange={this.onInputChange}
-                            onImageUpload={this.onImageUpload}
-                            onDetect={this.onDetect}
-                            onClear={this.onClear}
+                            onInputChange={onInputChange}
+                            onImageUpload={onImageUpload}
+                            onDetect={onDetect}
+                            onClear={onClear}
                             ref={formRef}
                         />
-                        <p
-                            style={{fontSize: '1.5rem', color: '#ffbb00', fontWeight:'300'}}
-                            ref={messageRef}>{message}</p>
+                        <p style={{fontSize: '1.5rem', color: '#ffbb00', fontWeight:'300'}}
+                            ref={messageRef}>
+                            {message}
+                        </p>
                     </aside>
                     <section className='section'>
                         <FaceRecognition
-                            boxes={this.state.boxes}
+                            boxes={boxes}
                             imageUrl={imageUrl}
                             ref={imageRef}
                         />
@@ -244,16 +278,34 @@ class App extends Component {
         : (
             <Fragment>
                 <Particles className='particles' params={particlesOptions} />
-                <Navigation user={user} isSignedIn={isSignedIn} changeToRoute={this.changeToRoute}/>
+                <Navigation user={user} isSignedIn={isSignedIn} changeToRoute={changeToRoute}/>
                 <Logo />
+                {/* {
+                    route === 'SignIn'
+                        ? <SignIn loadUser={loadUser} changeToRoute={changeToRoute} showMessage={showMessage} />
+                        : <Register loadUser={loadUser} changeToRoute={changeToRoute} showMessage={showMessage} />
+                } */}
                 {
                     route === 'SignIn'
-                        ? <SignIn loadUser={this.loadUser} changeToRoute={this.changeToRoute} />
-                        : <Register loadUser={this.loadUser} changeToRoute={this.changeToRoute} />
+                        ? <CustomForm 
+                            formName='Sign In'
+                            formFields={[{name: 'email', type: 'text'}, { name: 'password', type: 'password' }]}
+                            onFormSubmit={onFormSubmit}
+                            isLoading={isLoading}
+                        />
+                        : <CustomForm
+                            formName='Register'
+                            formFields={[{name:'name', type:'text'}, {name: 'email', type: 'text'}, { name: 'password', type: 'password' }]}
+                            onFormSubmit={onFormSubmit}
+                            isLoading={isLoading}
+                        />
                 }
+                <p style={{fontSize: '1.5rem', color: '#ffbb00', fontWeight:'300'}}
+                    ref={messageRef}>
+                    {message}
+                </p>
             </Fragment>
         );
-    }
 }
 
 export default App;

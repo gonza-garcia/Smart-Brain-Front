@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import './FileInput.css';
 
 const FileInput = ({ text, name, id, onChange, width }) => {

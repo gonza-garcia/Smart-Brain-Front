@@ -2,16 +2,16 @@ import React from 'react';
 import './FaceRecognition.css';
 
 const FaceRecognition = React.forwardRef(({ imageUrl, boxes }, ref) => {
-  return (
-      <div className='image-div'>
-          <img 
-            className='main-image'
-            alt=''
-            src={imageUrl}
-            ref={ref}
-            />
-          {
-              boxes.map((box, i) => 
+    return (
+        <div className='image-div'>
+            <img 
+                className='main-image'
+                alt=''
+                src={imageUrl}
+                ref={ref}
+                />
+            {
+                boxes.map((box, i) => 
                     <div 
                         key={i}
                         className='bounding-box'
@@ -20,10 +20,10 @@ const FaceRecognition = React.forwardRef(({ imageUrl, boxes }, ref) => {
                                 bottom: box.bottomRow,
                                 left:   box.leftCol}}
                     ></div>
-              )
-          }
-      </div>
-  );
+                )
+            }
+        </div>
+    );
 });
 
 export default FaceRecognition;
