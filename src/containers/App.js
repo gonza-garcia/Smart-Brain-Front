@@ -8,6 +8,7 @@ import Rank                                         from '../components/Rank/Ran
 import CustomForm                                   from './CustomForm/CustomForm.js';
 import './App.css';
 import { fetch_from_server, loadImage }             from '../functions/functions.js';
+import { loadModels, detectFaces }                  from '../functions/faceDetection.js';
 
 
 const particlesOptions = {
@@ -62,6 +63,11 @@ const App = () => {
             clearTimeout(timeOut);
         };
     }, [message]);
+
+    useEffect(() => {
+        // Load face detection models when app starts
+        loadModels();
+    }, []);
 
 
     const loadUser = user => {
@@ -129,14 +135,27 @@ const App = () => {
 
         setIsLoading(true);
 
-        let url = imageSourceIsLocal ? imageUrl.replace(/^data:image.+;base64,/, '') : imageUrl;
-
         try
         {
             await loadImage(imageUrl); //loadImage will throw an error if it's not an image
 
-            const regions = await fetch_from_server('/image/predict', { imageUrl: url }, 'post')
+            // For external URLs, use backend proxy to avoid CORS
+            let imageToDetect = imageUrl;
+            if (!imageSourceIsLocal && imageUrl.startsWith('http')) {
+                const proxyResponse = await fetch_from_server('/image/proxy', { imageUrl }, 'post');
+                imageToDetect = proxyResponse.image;
+            }
 
+            // Use face-api.js for detection instead of backend
+            const regions = await detectFaces(imageToDetect);
+
+            if (regions.length === 0) {
+                showMessage('No faces detected in this image.');
+                setIsLoading(false);
+                return;
+            }
+
+            // Update entry count in backend
             const entries = await fetch_from_server('/image/afterpredict', { id: user.id }, 'put');
 
             setUser({ ...user, entries: entries });

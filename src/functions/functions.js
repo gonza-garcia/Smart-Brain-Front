@@ -1,5 +1,5 @@
-// const host = 'http://localhost:3000';
-const host = 'https://face-smart-backend.herokuapp.com';
+const host = 'http://localhost:3000';
+// const host = 'https://face-smart-backend.herokuapp.com';
 
 export const fetch_from_server = async (serverEndpoint, body, method, headers = {'Content-Type': 'application/json'}) => {
 
