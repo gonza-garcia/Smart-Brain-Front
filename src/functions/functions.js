@@ -1,5 +1,4 @@
-const host = 'http://localhost:3000';
-// const host = 'https://face-smart-backend.herokuapp.com';
+const host = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 export const fetch_from_server = async (serverEndpoint, body, method, headers = {'Content-Type': 'application/json'}) => {
 
