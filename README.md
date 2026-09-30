@@ -1,3 +1,25 @@
+# Smart-Brain-Front
+
+Frontend de Smart-Brain (reconocimiento facial): SPA **React 17** (CRA) + face-api.js.
+
+## Estado de deploy
+
+| Qué | Dónde |
+|---|---|
+| **Código** | GitHub: `gonza-garcia/Smart-Brain-Front` (rama `master`) |
+| **Deploy** | Cloudflare Pages — `https://smart-brain-front.pages.dev` |
+| **Auto-deploy** | Al pushear a `master` (build CRA: `npm run build` → `build/`) |
+| **URL del backend** | Variable `REACT_APP_API_URL` inyectada en el build (prod: `https://smart-brain.136.248.246.248.sslip.io`; local: `http://localhost:3000`) |
+| **Commit deployado** | `b157a5a` |
+
+- **30 sep 2026:** primer deploy verificado E2E (login desde la UI contra el backend; CORS del
+  backend restringido a este origen).
+- El build necesita `cross-env` + `.npmrc` con `legacy-peer-deps` (react-particles-js pide
+  React 16) — ya incluidos en el repo.
+- El backend corre en Coolify (`J:\.webdev\.hosting` documenta la infraestructura).
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
