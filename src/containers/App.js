@@ -156,7 +156,7 @@ const App = () => {
             }
 
             // Update entry count in backend
-            const entries = await fetch_from_server('/image/afterpredict', { id: user.id }, 'put');
+            const entries = await fetch_from_server('/image/afterpredict', { id: user.id }, 'put', { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` });
 
             setUser({ ...user, entries: entries });
 
